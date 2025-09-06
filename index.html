@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Classes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #classForm {
+      background: white;
+      padding: 15px;
+      max-width: 500px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #classesList {
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .classItem {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .classItem h3 {
+      margin: 0 0 5px;
+    }
+    .classItem p {
+      margin: 5px 0;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Digital Classes</h1>
+  
+  <div id="classForm">
+    <h2>Add a New Class</h2>
+    <input type="text" id="classTitle" placeholder="Class Title" />
+    <textarea id="classDesc" rows="3" placeholder="Class Description"></textarea>
+    <input type="datetime-local" id="classDate" />
+    <button onclick="addClass()">Add Class</button>
+  </div>
+
+  <div id="classesList">
+    <h2>Upcoming Classes</h2>
+    <!-- Classes will appear here -->
+  </div>
+
+  <script>
+    const classes = [];
+
+    function addClass() {
+      const title = document.getElementById('classTitle').value.trim();
+      const desc = document.getElementById('classDesc').value.trim();
+      const date = document.getElementById('classDate').value;
+
+      if (!title || !desc || !date) {
+        alert('Please fill all the fields!');
+        return;
+      }
+
+      classes.push({ title, desc, date });
+      renderClasses();
+
+      // Clear inputs
+      document.getElementById('classTitle').value = '';
+      document.getElementById('classDesc').value = '';
+      document.getElementById('classDate').value = '';
+    }
+
+    function renderClasses() {
+      const container = document.getElementById('classesList');
+      let html = '<h2>Upcoming Classes</h2>';
+      if (classes.length === 0) {
+        html += '<p>No classes added yet.</p>';
+      } else {
+        classes.forEach((cls, idx) => {
+          html += `
+            <div class="classItem">
+              <h3>${cls.title}</h3>
+              <p>${cls.desc}</p>
+              <p><strong>Date:</strong> ${new Date(cls.date).toLocaleString()}</p>
+            </div>
+          `;
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    // Initial render
+    renderClasses();
+  </script>
+</body>
+</html>
