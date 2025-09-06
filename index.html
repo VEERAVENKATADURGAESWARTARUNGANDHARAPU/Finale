@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Network Latency Tester</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: #333;
+  }
+  h1 {
+    margin-bottom: 1rem;
+  }
+  button {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+  }
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  #results {
+    font-size: 1.1rem;
+  }
+  #log {
+    margin-top: 1rem;
+    max-width: 400px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+  <h1>Network Latency Tester</h1>
+  <button id="startBtn">Start Test</button>
+  <div id="results">Press "Start Test" to measure latency.</div>
+  <div id="log"></div>
+
+<script>
+  const startBtn = document.getElementById('startBtn');
+  const results = document.getElementById('results');
+  const log = document.getElementById('log');
+  
+  // URL to test ping, use a small static resource, or a dedicated endpoint.
+  const testUrl = 'https://www.google.com/favicon.ico'; 
+  
+  // Number of pings to send
+  const pingCount = 10;
+
+  // Utility: logs messages to the log box
+  function logMessage(msg) {
+    const p = document.createElement('p');
+    p.textContent = msg;
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  async function ping(url) {
+    const startTime = performance.now();
+    try {
+      // Add cache buster to avoid cached response
+      const response = await fetch(url + '?cachebust=' + Math.random(), { method: 'HEAD', mode: 'no-cors' });
+      // no-cors mode means we can't read status, but request still sent
+      const endTime = performance.now();
+      return endTime - startTime;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function runLatencyTest() {
+    startBtn.disabled = true;
+    results.textContent = 'Testing...';
+    log.innerHTML = '';
+    
+    const latencies = [];
+
+    for (let i = 1; i <= pingCount; i++) {
+      logMessage(`Ping ${i}...`);
+      const latency = await ping(testUrl);
+      if (latency !== null) {
+        latencies.push(latency);
+        logMessage(`Response time: ${latency.toFixed(2)} ms`);
+      } else {
+        logMessage('Ping failed.');
+      }
+    }
+
+    startBtn.disabled = false;
+
+    if (latencies.length > 0) {
+      const sum = latencies.reduce((a, b) => a + b, 0);
+      const avg = sum / latencies.length;
+      results.textContent = `Average latency: ${avg.toFixed(2)} ms (from ${latencies.length} successful pings)`;
+    } else {
+      results.textContent = 'All pings failed. Unable to measure latency.';
+    }
+  }
+
+  startBtn.addEventListener('click', runLatencyTest);
+</script>
+</body>
+</html>
